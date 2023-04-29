@@ -10,7 +10,7 @@ use crate::helpers::*;
 pub trait Vctr {
     fn show(&self) -> Strings;
     fn length(&self) -> Rint ;
-    //fn subset(self, idx: Integers) -> Self;
+    fn subset(self, idx: Integers) -> Self;
     //fn new() -> Self;
 }
 
@@ -27,6 +27,11 @@ impl Vctr for VecUsize {
 
     fn show(&self) -> Strings {
         vctr_show(&self.0)
+    }
+
+    fn subset(self, idx: Integers) -> Self {
+        let new_inner = vctr_subset(self.0, idx);
+        VecUsize(new_inner)
     }
 }
 
@@ -94,7 +99,7 @@ fn tst_trait() {
     let id = Integers::from_values(vec![3].iter());
     rprintln!("{:?}", id);
 
-    // rprintln!("{:?}", vu.subset(id));
+    rprintln!("{:?}", vu.subset(id));
 }
 
 // Trying to figure out the mask :/
