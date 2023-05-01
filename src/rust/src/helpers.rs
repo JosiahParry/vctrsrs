@@ -26,11 +26,17 @@ pub fn vctr_subset<T: std::marker::Copy>(x: Vec<Option<T>>, idx: Integers) -> Ve
         .map(|i| {
             match i {
                 _ if i.is_na() => None::<T>,
-                _ if i.inner() <= 0 && i.inner() as usize > x_len => None,
+                _ if i.inner() <= 0 || i.inner() as usize > x_len => None,
                 _ => x[(i.inner() as usize) - 1]
             }
         })
         .collect();
 
     res
+}
+
+// this function takes two vectors and combines them into 1
+pub fn vctr_extend<T>(mut x: Vec<Option<T>>, y: Vec<Option<T>>) -> Vec<Option<T>> {
+    x.extend(y.into_iter());
+    x
 }
