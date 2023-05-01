@@ -11,15 +11,12 @@
 #' @useDynLib vctrsrs, .registration = TRUE
 NULL
 
-tst_show <- function() .Call(wrap__tst_show)
+tst_vctr_usize <- function() .Call(wrap__tst_vctr_usize)
 
-tst_len <- function() .Call(wrap__tst_len)
+tst_vctr_class <- function() .Call(wrap__tst_vctr_class)
 
-tst_subset <- function() .Call(wrap__tst_subset)
-
-tst_trait <- function() invisible(.Call(wrap__tst_trait))
-
-test_mask <- function() invisible(.Call(wrap__test_mask))
+#' @'export
+new_usize <- function(x) .Call(wrap__new_usize, x)
 
 VecUsize <- new.env(parent = emptyenv())
 
@@ -30,6 +27,20 @@ VecUsize$new <- function(robj) .Call(wrap__VecUsize__new, robj)
 
 #' @export
 `[[.VecUsize` <- `$.VecUsize`
+
+Vctr <- new.env(parent = emptyenv())
+
+Vctr$length <- function() .Call(wrap__Vctr__length, self)
+
+Vctr$show <- function() .Call(wrap__Vctr__show, self)
+
+Vctr$subset <- function(idx) .Call(wrap__Vctr__subset, self, idx)
+
+#' @export
+`$.Vctr` <- function (self, name) { func <- Vctr[[name]]; environment(func) <- environment(); func }
+
+#' @export
+`[[.Vctr` <- `$.Vctr`
 
 
 # nolint end

@@ -11,14 +11,11 @@ pub trait Rvctr {
     fn extend(self, y: Self) -> Self;
 }
 
-
 // The `Vctr` Struct is intended to be a simple wrapper that 
 // contains any custom types that is defined by the developer. 
 // The Vctr struct requires that any object contained by it must
 // implement the Rvctr trait which is minimal
 pub struct Vctr<T: Rvctr>(pub T);
-
-
 
 // //implement Vctr trait
 impl Rvctr for VecUsize {
@@ -90,12 +87,19 @@ fn tst_vctr_class() -> Robj {
         .unwrap()
 }
 
+#[extendr]
+/// @'export
+fn new_usize(x: Integers) -> Vctr<VecUsize> {
+    Vctr(VecUsize::new(x))
+}
+
 
 extendr_module! {
     mod vctr;
     impl Vctr<VecUsize>;
     fn tst_vctr_usize;
     fn tst_vctr_class;
+    fn new_usize;
 }
 
 

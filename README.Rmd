@@ -2,55 +2,82 @@
 output: github_document
 ---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
-
 # vctrsrs
 
-<!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![CRAN status](https://www.r-pkg.org/badges/version/vctrsrs)](https://CRAN.R-project.org/package=vctrsrs)
-<!-- badges: end -->
+The goal of `vctrsrs` is to allow `extendr` developers to return a single struct to R that can be interacted with like a normal vector. 
 
-The goal of vctrsrs is to ...
-
-## Installation
-
-You can install the development version of vctrsrs like so:
-
-``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
-```
+This is based on [extendr_usize_vector](https://github.com/sorhawell/extendr_usize_vector) sample repo. 
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+Here is an example of a `Vec<Option<usize>>`
 
-```{r example}
+```{r}
 library(vctrsrs)
-## basic example code
+
+x <- new_usize(sample(1e5, 10))
+
+length(x)
+
+x[1:10]
+
+x[c(NA, -1, 5)]
+
+data.frame(id = 1:10, x = x)
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+## how it works
 
-```{r cars}
-summary(cars)
+In the Rust source a trait and a struct are implemented. The trait `Rvctr` looks like so: 
+
+```rust
+pub trait Rvctr {
+    fn show(&self) -> Strings;
+    fn length(&self) -> Rint ;
+    fn subset(self, idx: Integers) -> Self;
+    fn extend(self, y: Self) -> Self;
+}
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this. You could also use GitHub Actions to re-render `README.Rmd` every time you push. An example workflow can be found here: <https://github.com/r-lib/actions/tree/v1/examples>.
+These methods are all that are needed to make a single pointed feel like a vector by providing users the ability to use `length()`, `c()`, `[`, and `[[`.
 
-You can also embed plots, for example:
+The struct `Vctr` is intended to be a general purpose wrapper struct for any custom struct. It is a tuple struct that accepts and object that has implemented the `Rvctr` trait. It looks like so: 
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+```rust
+pub struct Vctr<T: Rvctr>(pub T);
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+You then generate an extendr R object by defining the `impl` with the `#[extendr]` macro. In this impl you have to also specify the methods for the trait which should be autopopulated with a custom macro like `#[vctr]` which isn't yet made.
+
+```rust
+// this could be created by a macro...
+#[extendr]
+impl Vctr<VecUsize> {
+    fn length(&self) -> Rint {
+        self.0.length()
+    }
+
+    fn show(&self) -> Strings {
+        self.0.show()
+    }
+
+    fn subset(&mut self, idx: Integers) -> Self {
+        let x = self.0.clone();
+        let res = x.subset(idx);
+        Vctr(res)
+    }
+}
+```
+
+
+## Problem: pointers aren't vectors
+
+This implementation can be put into a data frame. But it can't be put into a tibble. That's because tibble does all of its validation with vctrs. And vctrs only works with atomic and list vectors. So even though all of this witch craft has been implemented here. It cannot be compatible with the tidyverse unless it can pass `vctrs::vec_is()`.
+
+```{r, error = TRUE}
+data.frame(id = 1:10, x = x)
+
+tibble::tibble(id = 1:10, x = x)
+```
+
+
