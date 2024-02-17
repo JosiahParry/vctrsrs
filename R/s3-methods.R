@@ -41,9 +41,14 @@ as.data.frame.Vctr <- function(x, ...) {
 }
 
 
-format.vc <- function(y, ...) {
-  unlist(lapply(y, format))
-}
+#'
+#' #' @import vctrs
+#' #' @export
+#' vec_proxy.Vctr <- function(x, ...) format(x)
+#'
+#' #' @export
+#' vec_restore.Vctr <- function(x, ...) new_usize(as.integer(x))
+#'
 
 # For compatibility with vctrs it seems like the only way to do that
 # is going to be if the object is a true "vector" in R's eye.

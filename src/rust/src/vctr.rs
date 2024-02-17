@@ -88,8 +88,8 @@ fn tst_vctr_class() -> Robj {
 }
 
 #[extendr]
-/// @'export
-fn new_usize(x: Integers) -> Vctr<VecUsize> {
+/// @export
+pub fn new_usize(x: Integers) -> Vctr<VecUsize> {
     Vctr(VecUsize::new(x))
 }
 

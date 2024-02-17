@@ -6,7 +6,6 @@
 # This file was created with the following call:
 #   .Call("wrap__make_vctrsrs_wrappers", use_symbols = TRUE, package_name = "vctrsrs")
 
-#' @docType package
 #' @usage NULL
 #' @useDynLib vctrsrs, .registration = TRUE
 NULL
@@ -15,12 +14,26 @@ tst_vctr_usize <- function() .Call(wrap__tst_vctr_usize)
 
 tst_vctr_class <- function() .Call(wrap__tst_vctr_class)
 
-#' @'export
+#' @export
 new_usize <- function(x) .Call(wrap__new_usize, x)
+
+tst_altrep <- function() .Call(wrap__tst_altrep)
+
+tst_altstring <- function() .Call(wrap__tst_altstring)
+
+tst_altrepn <- function(n) .Call(wrap__tst_altrepn, n)
+
+new_stringint <- function() .Call(wrap__new_stringint)
 
 VecUsize <- new.env(parent = emptyenv())
 
 VecUsize$new <- function(robj) .Call(wrap__VecUsize__new, robj)
+
+VecUsize$length <- function() .Call(wrap__VecUsize__length, self)
+
+VecUsize$show <- function() .Call(wrap__VecUsize__show, self)
+
+VecUsize$subset <- function(idx) .Call(wrap__VecUsize__subset, self, idx)
 
 #' @export
 `$.VecUsize` <- function (self, name) { func <- VecUsize[[name]]; environment(func) <- environment(); func }
