@@ -106,7 +106,7 @@ impl<T: Rvctr> Vctr<T> {
     pub fn as_vctr(&self) -> Robj {
         let mut x = self.inner.clone();
 
-        x.set_class([T::class(), "vctrs_vctr"])
+        x.set_class([T::class(), "vctrsrs", "vctrs_vctr"])
             .expect("failed to extract inner integers");
         x.clone().into_robj()
     }
@@ -117,6 +117,7 @@ impl<T: Rvctr> Vctr<T> {
 pub struct VecUsize(pub Vec<Option<usize>>);
 
 #[extendr]
+/// @export
 pub fn new_usize_vec(x: Integers) -> Robj {
     let dat = VecUsize::new(x);
     let vctr = Vctr::from(dat);
@@ -124,9 +125,17 @@ pub fn new_usize_vec(x: Integers) -> Robj {
 }
 
 #[extendr]
+/// @export
 pub fn from_vec_usize(x: VecUsize) -> Robj {
     rprintln!("{x:#?}");
     Vctr::try_from(x).unwrap().as_vctr()
+}
+
+// TODO this needs to be turned into format.Type
+/// @export
+#[extendr(r_name = "format.vec_usize")]
+pub fn show_vctrsrs(x: VecUsize) -> Strings {
+    x.show()
 }
 
 // add extendr implementation with new method
@@ -164,6 +173,7 @@ extendr_module! {
     mod vctrsrs;
     fn new_usize_vec;
     fn from_vec_usize;
+    fn show_vctrsrs;
     // impl VecUsize;
     // use vctr;
     // use altreptst;

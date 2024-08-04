@@ -10,9 +10,14 @@
 #' @useDynLib vctrsrs, .registration = TRUE
 NULL
 
+#' @export
 new_usize_vec <- function(x) .Call(wrap__new_usize_vec, x)
 
+#' @export
 from_vec_usize <- function(x) .Call(wrap__from_vec_usize, x)
+
+#' @export
+format.vec_usize <- function(x) .Call(wrap__show_vctrsrs, x)
 
 
 # nolint end
