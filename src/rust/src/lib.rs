@@ -1,6 +1,6 @@
 mod helpers;
 use crate::helpers::*;
-use extendr_api::{prelude::*, ToVectorValue};
+use extendr_api::prelude::*;
 mod vctr;
 use vctr::*;
 // mod altreptst;
@@ -12,29 +12,103 @@ use vctr::*;
 // subset it
 // also important to be able to instantiate a new one.
 
+/// Container struct for `T`
+/// This will be the way to get data in and out of R
 #[derive(Debug, Clone)]
-pub struct VctrContainer(Integers);
-
-impl IntoRobj for VctrContainer {
-    fn into_robj(self) -> Robj {
-        self.0.into_robj()
-    }
+pub struct Vctr<T: Rvctr> {
+    pub(crate) inner: Integers,
+    phantom: std::marker::PhantomData<T>,
 }
 
-impl TryFrom<Robj> for VctrContainer {
+/// Convert from an Robj to a Vctr container
+impl<T: Rvctr> TryFrom<Robj> for Vctr<T> {
     type Error = extendr_api::Error;
 
     fn try_from(value: Robj) -> Result<Self> {
         let inner = Integers::try_from(value)?;
 
         // Check that the point is an external pointer
-        match inner.get_attrib("extendr_ptr") {
-            Some(_) => (),
+        let ptr = match inner.get_attrib("extendr_ptr") {
+            Some(ptr) => ptr,
             None => return Err(Error::ExpectedExternalPtr(().into())),
+        };
+
+        // Here we try to convert to the external pointer
+        // if this fails it is the wrong type
+        let _ = ExternalPtr::<T>::try_from(&ptr)?;
+
+        // craft the vector from the integer
+        let res = Vctr {
+            inner,
+            phantom: std::marker::PhantomData,
+        };
+
+        Ok(res)
+    }
+}
+
+/// Implements conversion from a Vctr container to `T`
+macro_rules! impl_try_from_vctr {
+    ($struct:ty) => {
+        impl<T: Rvctr> TryFrom<Vctr<T>> for $struct {
+            type Error = extendr_api::Error;
+
+            fn try_from(value: Vctr<T>) -> Result<Self> {
+                let pntr = match value.inner.get_attrib("extendr_ptr") {
+                    Some(p) => p,
+                    None => return Err(Self::Error::ExpectedExternalPtr(().into())),
+                };
+                let res = <Self>::try_from(pntr)?;
+                Ok(res)
+            }
         }
 
-        // create the container with the integer vector
-        Ok(VctrContainer(inner))
+        impl TryFrom<Robj> for $struct
+        where
+            $struct: Rvctr,
+        {
+            type Error = extendr_api::Error;
+
+            fn try_from(value: Robj) -> Result<Self> {
+                let inner = Integers::try_from(value)?;
+                let pntr = match inner.get_attrib("extendr_ptr") {
+                    Some(p) => p,
+                    None => return Err(Error::ExpectedExternalPtr(().into())),
+                };
+
+                // try and get the data from the pointer
+                let extptr = ExternalPtr::<Self>::try_from(pntr)?;
+                // make it owned
+                let dat = extptr.as_ref().clone();
+                Ok(dat)
+            }
+        }
+    };
+}
+
+impl_try_from_vctr!(VecUsize);
+
+/// Convert from `T` to a Vctr container
+impl<T: Rvctr> From<T> for Vctr<T> {
+    fn from(value: T) -> Self {
+        let n = value.length();
+        let ptr = ExternalPtr::new(value);
+        let mut inner = Integers::new(n.inner() as usize);
+        let inner = inner.set_attrib("extendr_ptr", ptr).unwrap().clone();
+        Vctr {
+            inner,
+            phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<T: Rvctr> Vctr<T> {
+    pub fn as_vctr(&self) -> Robj {
+        let mut x = self.inner.clone();
+
+        x.set_class([T::class(), "vctrs_vctr"])
+            .expect("failed to extract inner integers");
+        x.clone().into_robj()
     }
 }
 
@@ -43,20 +117,16 @@ impl TryFrom<Robj> for VctrContainer {
 pub struct VecUsize(pub Vec<Option<usize>>);
 
 #[extendr]
-pub fn new_usize_vec(x: Integers) -> Integers {
+pub fn new_usize_vec(x: Integers) -> Robj {
     let dat = VecUsize::new(x);
-    let n = dat.0.len();
-    let mut res = Integers::new(n);
-
-    res.set_attrib("extendr_ptr", ExternalPtr::new(dat))
-        .unwrap()
-        .clone()
+    let vctr = Vctr::from(dat);
+    vctr.as_vctr()
 }
 
 #[extendr]
 pub fn from_vec_usize(x: VecUsize) -> Robj {
     rprintln!("{x:#?}");
-    VctrContainer::try_from(x).unwrap().into_robj()
+    Vctr::try_from(x).unwrap().as_vctr()
 }
 
 // add extendr implementation with new method
