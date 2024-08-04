@@ -3,7 +3,7 @@ TARGET = $(subst 64,x86_64,$(subst 32,i686,$(WIN)))-pc-windows-gnu
 TARGET_DIR = ./rust/target
 LIBDIR = $(TARGET_DIR)/$(TARGET)/release
 STATLIB = $(LIBDIR)/libvctrsrs.a
-PKG_LIBS = -L$(LIBDIR) -lvctrsrs -lws2_32 -ladvapi32 -luserenv -lbcrypt
+PKG_LIBS = -L$(LIBDIR) -lvctrsrs -lws2_32 -ladvapi32 -luserenv -lbcrypt -lntdll
 
 all: C_clean
 
@@ -37,4 +37,4 @@ C_clean:
 	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS)
 
 clean:
-	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS) rust/target
+	rm -Rf $(SHLIB) $(STATLIB) $(OBJECTS) $(TARGET_DIR)

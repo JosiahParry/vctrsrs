@@ -138,6 +138,24 @@ pub fn show_vctrsrs(x: VecUsize) -> Strings {
     x.show()
 }
 
+/// @export
+#[extendr(r_name = "length.vec_usize")]
+pub fn length_vctrsrs(x: VecUsize) -> Rint {
+    x.length()
+}
+
+/// @export
+#[extendr(r_name = "`[.vec_usize`")]
+pub fn subset_vctrsrs(x: VecUsize, idx: Integers) -> Robj {
+    Vctr::from(x.subset(idx)).as_vctr()
+}
+
+/// @export
+#[extendr(r_name = "c.vec_usize")]
+pub fn extend_vctrsrs(x: VecUsize, y: VecUsize) -> Robj {
+    Vctr::from(x.extend(y)).as_vctr()
+}
+
 // add extendr implementation with new method
 impl VecUsize {
     pub fn new(robj: Integers) -> Self {
@@ -174,6 +192,9 @@ extendr_module! {
     fn new_usize_vec;
     fn from_vec_usize;
     fn show_vctrsrs;
+    fn length_vctrsrs;
+    fn subset_vctrsrs;
+    fn extend_vctrsrs;
     // impl VecUsize;
     // use vctr;
     // use altreptst;
