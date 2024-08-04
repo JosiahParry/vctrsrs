@@ -4,11 +4,11 @@ version = '0.1.0'
 edition = '2021'
 
 [lib]
-crate-type = [ 'staticlib' ]
+crate-type = ['staticlib']
 name = 'vctrsrs'
 
 [dependencies]
-extendr-api = '0.6.0'
+extendr-api = "0.7.0"
 
 [patch.crates-io]
 extendr-api = { git = "https://github.com/extendr/extendr" }

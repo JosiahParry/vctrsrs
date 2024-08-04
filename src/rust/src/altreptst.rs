@@ -1,5 +1,5 @@
 use extendr_api::prelude::*; 
-
+mod
 
 #[derive(Debug, Clone)]
 struct Container(Vec<Person>);
@@ -46,6 +46,43 @@ fn tst_altrep() -> Altrep {
     obj
 }
 
+
+// use std::result::Result;
+use extendr_api::SEXP;
+use libR_sys::{R_ExternalPtrAddr, R_ExternalPtrTag};
+#[extendr]
+fn frm_altrep(x: Altrep) -> () {
+    // let (d1, d2) = x.data();
+
+    // use crate::altreptst::Container; 
+    let (d1, d2) = x.data();
+
+    let d1 = d2;
+    let d1_sexp  =  unsafe { d1.get() }; 
+    let d1_ptr = unsafe { R_ExternalPtrAddr(d1_sexp) };
+    let d1_tag = unsafe { R_ExternalPtrTag(d1_ptr) };
+    unsafe { libR_sys::Rf_PrintValue(d1_tag) };
+    
+    // let d1: Result<ExternalPtr<Container>> = ExternalPtr::try_from(d1);
+    // let d2: Result<ExternalPtr<Container>> = ExternalPtr::try_from(d2);
+    // rprintln!("{:?}\n{:?}", d1, d2);
+
+    // let addr = unsafe {d1.get() as usize};
+
+    // let ptr = addr as *const Container; // replace YourStruct with your actual struct type
+    // let your_struct: &Container = unsafe { &*ptr };
+
+}
+
+fn mat(x: Robj) {
+    match x.rtype() {
+        Rtype::Logicals => todo!(),
+        Rtype::Integers => todo!(),
+        Rtype::Doubles => todo!(),
+        Rtype::Complexes => todo!(),
+        _ => unimplemented!()
+    }
+}
 
 #[extendr]
 fn tst_altrepn(n: i32) -> Altrep {
@@ -112,4 +149,5 @@ extendr_module! {
     fn tst_altstring;
     fn tst_altrepn;
     fn new_stringint;
+    fn frm_altrep;
 }

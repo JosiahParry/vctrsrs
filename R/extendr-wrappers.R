@@ -10,50 +10,9 @@
 #' @useDynLib vctrsrs, .registration = TRUE
 NULL
 
-tst_vctr_usize <- function() .Call(wrap__tst_vctr_usize)
+new_usize_vec <- function(x) .Call(wrap__new_usize_vec, x)
 
-tst_vctr_class <- function() .Call(wrap__tst_vctr_class)
-
-#' @export
-new_usize <- function(x) .Call(wrap__new_usize, x)
-
-tst_altrep <- function() .Call(wrap__tst_altrep)
-
-tst_altstring <- function() .Call(wrap__tst_altstring)
-
-tst_altrepn <- function(n) .Call(wrap__tst_altrepn, n)
-
-new_stringint <- function() .Call(wrap__new_stringint)
-
-VecUsize <- new.env(parent = emptyenv())
-
-VecUsize$new <- function(robj) .Call(wrap__VecUsize__new, robj)
-
-VecUsize$length <- function() .Call(wrap__VecUsize__length, self)
-
-VecUsize$show <- function() .Call(wrap__VecUsize__show, self)
-
-VecUsize$subset <- function(idx) .Call(wrap__VecUsize__subset, self, idx)
-
-#' @export
-`$.VecUsize` <- function (self, name) { func <- VecUsize[[name]]; environment(func) <- environment(); func }
-
-#' @export
-`[[.VecUsize` <- `$.VecUsize`
-
-Vctr <- new.env(parent = emptyenv())
-
-Vctr$length <- function() .Call(wrap__Vctr__length, self)
-
-Vctr$show <- function() .Call(wrap__Vctr__show, self)
-
-Vctr$subset <- function(idx) .Call(wrap__Vctr__subset, self, idx)
-
-#' @export
-`$.Vctr` <- function (self, name) { func <- Vctr[[name]]; environment(func) <- environment(); func }
-
-#' @export
-`[[.Vctr` <- `$.Vctr`
+from_vec_usize <- function(x) .Call(wrap__from_vec_usize, x)
 
 
 # nolint end

@@ -1,9 +1,10 @@
-use extendr_api::prelude::*;
+mod helpers;
 use crate::helpers::*;
+use extendr_api::{prelude::*, ToVectorValue};
 mod vctr;
 use vctr::*;
-mod helpers;
-mod altreptst;
+// mod altreptst;
+// mod helpers;
 
 // This is the trait that will implement structs as R vectors
 // The minimum that is needed is to capture output as strings for printing
@@ -11,15 +12,54 @@ mod altreptst;
 // subset it
 // also important to be able to instantiate a new one.
 
+#[derive(Debug, Clone)]
+pub struct VctrContainer(Integers);
 
+impl IntoRobj for VctrContainer {
+    fn into_robj(self) -> Robj {
+        self.0.into_robj()
+    }
+}
+
+impl TryFrom<Robj> for VctrContainer {
+    type Error = extendr_api::Error;
+
+    fn try_from(value: Robj) -> Result<Self> {
+        let inner = Integers::try_from(value)?;
+
+        // Check that the point is an external pointer
+        match inner.get_attrib("extendr_ptr") {
+            Some(_) => (),
+            None => return Err(Error::ExpectedExternalPtr(().into())),
+        }
+
+        // create the container with the integer vector
+        Ok(VctrContainer(inner))
+    }
+}
 
 // define new struct
 #[derive(Debug, Clone)]
 pub struct VecUsize(pub Vec<Option<usize>>);
 
+#[extendr]
+pub fn new_usize_vec(x: Integers) -> Integers {
+    let dat = VecUsize::new(x);
+    let n = dat.0.len();
+    let mut res = Integers::new(n);
+
+    res.set_attrib("extendr_ptr", ExternalPtr::new(dat))
+        .unwrap()
+        .clone()
+}
+
+#[extendr]
+pub fn from_vec_usize(x: VecUsize) -> Robj {
+    rprintln!("{x:#?}");
+    VctrContainer::try_from(x).unwrap().into_robj()
+}
 
 // add extendr implementation with new method
-#[extendr]
 impl VecUsize {
     pub fn new(robj: Integers) -> Self {
         let x = robj
@@ -50,10 +90,11 @@ impl VecUsize {
     }
 }
 
-
 extendr_module! {
     mod vctrsrs;
-    impl VecUsize;
-    use vctr;
-    use altreptst;
+    fn new_usize_vec;
+    fn from_vec_usize;
+    // impl VecUsize;
+    // use vctr;
+    // use altreptst;
 }
