@@ -19,5 +19,14 @@ from_vec_usize <- function(x) .Call(wrap__from_vec_usize, x)
 #' @export
 format.vec_usize <- function(x) .Call(wrap__show_vctrsrs, x)
 
+#' @export
+length.vec_usize <- function(x) .Call(wrap__length_vctrsrs, x)
+
+#' @export
+`[.vec_usize` <- function(x, idx) .Call(wrap__subset_vctrsrs, x, idx)
+
+#' @export
+c.vec_usize <- function(x, y) .Call(wrap__extend_vctrsrs, x, y)
+
 
 # nolint end
