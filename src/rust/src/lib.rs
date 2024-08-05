@@ -146,7 +146,21 @@ pub fn length_vctrsrs(x: VecUsize) -> Rint {
 
 /// @export
 #[extendr(r_name = "`[.vec_usize`")]
-pub fn subset_vctrsrs(x: VecUsize, idx: Integers) -> Robj {
+pub fn subset_vctrsrs(x: VecUsize, idx: Either<Doubles, Integers>) -> Robj {
+      match idx {
+        Left(dbl) => dbl
+            .into_iter()
+            .map(|di| {
+                if di.is_na() {
+                    Rint::na()
+                } else {
+                    Rint::from(di.inner() as i32)
+                }
+            })
+            .collect::<Integers>(),
+        Right(ints) => ints,
+    }
+
     Vctr::from(x.subset(idx)).as_vctr()
 }
 

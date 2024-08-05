@@ -3,11 +3,18 @@
 version = 3
 
 [[package]]
+name = "either"
+version = "1.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
+
+[[package]]
 name = "extendr-api"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b0701db497d091675e50bb10ba870999742cd1e9a9d94cf3fb52f3ea9a7629c0"
 dependencies = [
+ "either",
  "extendr-macros",
  "libR-sys",
  "once_cell",
