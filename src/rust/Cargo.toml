@@ -7,8 +7,7 @@ edition = '2021'
 crate-type = ['staticlib']
 name = 'vctrsrs'
 
-[dependencies]
-extendr-api = { version = "0.7.0", features = ["either"] }
 
-[patch.crates-io]
-extendr-api = { git = "https://github.com/extendr/extendr" }
+[dependencies]
+extendr-api = { version = "0.7.1", features = ["either"] }
+extendr-vctrs = {path = "../../../rust/extendr-vctrs"}

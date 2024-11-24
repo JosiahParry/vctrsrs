@@ -14,19 +14,16 @@ NULL
 new_usize_vec <- function(x) .Call(wrap__new_usize_vec, x)
 
 #' @export
-from_vec_usize <- function(x) .Call(wrap__from_vec_usize, x)
+format.vec_usize <- function(x) .Call(wrap__show_vec_usize, x)
 
 #' @export
-format.vec_usize <- function(x) .Call(wrap__show_vctrsrs, x)
+length.vec_usize <- function(x) .Call(wrap__length_vec_usize, x)
 
 #' @export
-length.vec_usize <- function(x) .Call(wrap__length_vctrsrs, x)
+`[.vec_usize` <- function(x, idx) .Call(wrap__subset_vec_usize, x, idx)
 
 #' @export
-`[.vec_usize` <- function(x, idx) .Call(wrap__subset_vctrsrs, x, idx)
-
-#' @export
-c.vec_usize <- function(x, y) .Call(wrap__extend_vctrsrs, x, y)
+c.vec_usize <- function(x, y) .Call(wrap__extend_vec_usize, x, y)
 
 
 # nolint end
