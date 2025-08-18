@@ -1,3 +1,6 @@
+use extendr_api::prelude::*;
+use extendr_vctrs::{extendr_vctr, Rvctr, Vctr};
+
 
 #[derive(Debug, Clone)]
 pub struct Point {
@@ -5,8 +8,15 @@ pub struct Point {
     y: f64,
 }
 
-// #[extendr]
-fn make_points(x: Doubles, y: Doubles) -> Vctr<Vec<Option<Point>>> {
+#[extendr_vctr("points")]
+#[derive(Debug, Clone, Rvctr)]
+pub struct Points(Vec<Option<Point>>);
+
+
+
+/// @export
+#[extendr]
+fn make_points(x: Doubles, y: Doubles) -> Points {
     let pnts = x.into_iter().zip(y.into_iter())
     .map(|(x, y)| {
         if x.is_na() || y.is_na() {
@@ -19,16 +29,16 @@ fn make_points(x: Doubles, y: Doubles) -> Vctr<Vec<Option<Point>>> {
             Some(pnt)
         }
     }).collect::<Vec<_>>();
-    Vctr::from(pnts)
+    Points(pnts)
 }
 
-// #[extendr]
-fn centroid(x: Vctr<Vec<Option<Point>>>) -> Robj {
+/// @export
+#[extendr]
+fn centroid(x: Points) -> Result<Points> {
     let mut n = 0f64;
 
     let centroid = x
-        .try_into_inner()
-        .expect("points vector")
+        .0
         .iter()
         .fold((0f64, 0f64), |mut acc, next| {
             if let Some(pnt) = next {
@@ -42,5 +52,13 @@ fn centroid(x: Vctr<Vec<Option<Point>>>) -> Robj {
     let res = vec![
         Some(Point { x: centroid.0 / n, y: centroid.1 / n})
     ];
-    Vctr::from(res).as_vctr()
+    Ok(Points(res))
 }
+
+extendr_module! {
+    mod point;
+    // fn show_points;
+    fn centroid;
+    fn make_points;
+}
+

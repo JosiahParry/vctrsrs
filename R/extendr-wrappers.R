@@ -14,6 +14,24 @@ NULL
 new_usize_vec <- function(x) .Call(wrap__new_usize_vec, x)
 
 #' @export
+centroid <- function(x) .Call(wrap__centroid, x)
+
+#' @export
+make_points <- function(x, y) .Call(wrap__make_points, x, y)
+
+#' @export
+format.points <- function(x) .Call(wrap__show_points, x)
+
+#' @export
+length.points <- function(x) .Call(wrap__length_points, x)
+
+#' @export
+`[.points` <- function(x, idx) .Call(wrap__subset_points, x, idx)
+
+#' @export
+c.points <- function(x, y) .Call(wrap__extend_points, x, y)
+
+#' @export
 format.vec_usize <- function(x) .Call(wrap__show_vec_usize, x)
 
 #' @export

@@ -9,5 +9,5 @@ name = 'vctrsrs'
 
 
 [dependencies]
-extendr-api = { version = "0.7.1", features = ["either"] }
+extendr-api = { version = "0.7.1", features = ["either", "serde", "faer"] }
 extendr-vctrs = {path = "../../../rust/extendr-vctrs"}
